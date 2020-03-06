@@ -4,7 +4,10 @@ WatchDog is a small tool to log the file sizes of specific files.
 
 ## Installation
 
-To be added.
+To use the program just unzip the release. [Current Release](https://github.com/SirCodiac/WatchDog/releases/tag/v1.0.1)
+
+To setup the config just start the WD.Config.exe.
+The timepoint of registration of the task is the timepoint on which the task is executed daily.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
