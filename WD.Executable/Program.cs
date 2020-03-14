@@ -26,7 +26,7 @@ namespace WD.Executable
       }
       foreach (var item in items)
       {
-        var fileInfo = new FileInfo(item.Path + "\\" + item.File);
+        var fileInfo = new FileInfo(item.File);
         var size = fileInfo.Length;
         switch (item.Unit)
         {
@@ -44,9 +44,8 @@ namespace WD.Executable
         {
           Console.ForegroundColor = ConsoleColor.Red;
           Console.WriteLine("WARNING");
-          Console.WriteLine($"{item.Path}\\{item.File} with {size} {item.Unit} of {item.Size} {item.Unit} allowed.");
-          Console.ForegroundColor = ConsoleColor.White;
-          Log($"{item.Path}\\{item.File} with {size} {item.Unit}");
+          Console.WriteLine($"{item.File} with {size} {item.Unit} of {item.Size} {item.Unit} allowed.");
+          Log($"{item.File} with {size} {item.Unit}");
           exit = false;
         }
         if (!exit)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32.TaskScheduler;
 using System;
+using System.IO;
 using System.Linq;
 using WD.Core.Extender;
 using WD.Core.Util;
@@ -14,13 +15,17 @@ namespace WD.Config
       var end = false;
       Console.Title = "WatchDog Configuration Tool";
 
+
       Console.WriteLine("Welcome to the configuration tool of WatchDog.");
+      Console.WriteLine("Press any key to continue...");
+      Console.ReadKey();
       while (!end)
       {
-        Console.WriteLine("Please choose between the following actions:");
         int input = 0;
         do
         {
+          Console.Clear();
+          Console.WriteLine("Please choose between the following actions:");
           Console.WriteLine("1.) Display current items on the WatchDog\n2.) Add item to WatchDog\n3.) Remove item from WatchDog");
           if (Properties.Settings.Default.TaskActivated)
             Console.WriteLine("4.) Deactivate task");
@@ -31,11 +36,11 @@ namespace WD.Config
           {
             input = Convert.ToInt32(Console.ReadLine());
           }
-          catch (Exception ex)
+          catch (Exception)
           {
-            Console.WriteLine("The performed action was illegal.\nPress any key to exit...");
+            Console.WriteLine("The performed action was illegal.\nPress any key to continue...");
             Console.ReadKey();
-            Environment.Exit(0);
+            continue;
           }
         } while (input < 1 || input > 4);
         switch (input)
@@ -70,7 +75,6 @@ namespace WD.Config
     #region [AddItem]
     private static void AddItem()
     {
-      var path = "";
       var file = "";
       var size = 0;
       var unit = eUnit.Megabyte;
@@ -79,9 +83,7 @@ namespace WD.Config
       {
         valid = !valid ? true : valid;
         Console.Clear();
-        Console.Write("Please enter the path to the file: ");
-        path = Console.ReadLine();
-        Console.Write("\nPlease enter the file including the file extension: ");
+        Console.Write("Please enter the file to observe: ");
         file = Console.ReadLine();
         Console.Write("\nPlease enter the limit size without the unit: ");
         size = Convert.ToInt32(Console.ReadLine());
@@ -102,29 +104,26 @@ namespace WD.Config
             valid = false;
             break;
         }
-      } while (!(path.IsDirectory() && file.Contains('.') && size > 0 && valid));
+      } while (!File.Exists(file) && size > 0 && valid);
 
-      WDStorager.Add(new Core.Entity.WDItemEntity(path, file, size, unit));
+      WDStorager.Add(new Core.Entity.WDItemEntity(file, size, unit));
     }
     #endregion
 
     #region [RemoveItem]
     private static void RemoveItem()
     {
-      var path = "";
       var file = "";
       var valid = true;
       do
       {
         valid = !valid ? true : valid;
         Console.Clear();
-        Console.Write("Please enter the path to the file: ");
-        path = Console.ReadLine();
-        Console.Write("\nPlease enter the file including the file extension: ");
+        Console.Write("Please enter the file: ");
         file = Console.ReadLine();
-      } while (!(path.IsDirectory() && file.Contains('.')));
+      } while (!File.Exists(file) && WDStorager.GetList().Any(x => x.File == file));
 
-      WDStorager.Remove(new Core.Entity.WDItemEntity(path, file, 0, eUnit.Megabyte));
+      WDStorager.Remove(new Core.Entity.WDItemEntity(file, 0, eUnit.Megabyte));
     }
     #endregion
 
@@ -156,6 +155,7 @@ namespace WD.Config
         ts.RootFolder.RegisterTaskDefinition(@"WatchDog", td);
 
         Properties.Settings.Default.TaskActivated = true;
+        Properties.Settings.Default.Save();
       }
     }
     #endregion
@@ -163,11 +163,19 @@ namespace WD.Config
     #region [DeactivateTaskScheduler]
     private static void DeactivateTaskScheduler()
     {
-      using (TaskService ts = new TaskService())
+      try
       {
-        ts.RootFolder.DeleteTask(@"WatchDog");
+        using (TaskService ts = new TaskService())
+        {
+          ts.RootFolder.DeleteTask(@"WatchDog");
+        }
+      }
+      catch (Exception)
+      {
+
       }
       Properties.Settings.Default.TaskActivated = false;
+      Properties.Settings.Default.Save();
     }
     #endregion
   }

@@ -19,9 +19,8 @@ namespace WD.Core.Entity
     /// <param name="file">The file.</param>
     /// <param name="size">The size.</param>
     /// <param name="unit">The unit.</param>
-    public WDItemEntity(string path, string file, int size, eUnit unit)
+    public WDItemEntity(string file, int size, eUnit unit)
     {
-      Path = path;
       File = file;
       Size = size;
       Unit = unit;
@@ -29,27 +28,12 @@ namespace WD.Core.Entity
     #endregion
 
     #region - private properties -
-    private string m_Path { get; set; }
     private string m_File { get; set; }
     private int m_Size { get; set; }
     private eUnit m_Unit { get; set; }
     #endregion
 
     #region - public properties -
-
-    #region [Path]    
-    /// <summary>Gets or sets the path.</summary>
-    /// <value>The path.</value>
-    public string Path 
-    {
-      get => m_Path; 
-      set
-      {
-        if (value.IsDirectory())
-          m_Path = value;
-      }
-    }
-    #endregion
 
     #region [File]    
     /// <summary>Gets or sets the file.</summary>
@@ -76,7 +60,7 @@ namespace WD.Core.Entity
     #region [ToString]
     /// <summary>Converts to string.</summary>
     /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-    public override string ToString() => $"{Path}\\{File}: {Size} {Unit}";
+    public override string ToString() => $"{File}: {Size} {Unit}";
     #endregion
 
     #region [Equals]    
@@ -88,8 +72,8 @@ namespace WD.Core.Entity
       try
       {
         var o = (WDItemEntity)obj;
-        return o.File == File && o.m_Path == Path;
-      } catch(Exception ex)
+        return o.File == File;
+      } catch(Exception)
       {
         return false;
       }
@@ -99,7 +83,7 @@ namespace WD.Core.Entity
     #region [GetHashCode]    
     /// <summary>Returns a hash code for this instance.</summary>
     /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. </returns>
-    public override int GetHashCode() => ($"{Path}\\{File}").GetHashCode();
+    public override int GetHashCode() => File.GetHashCode();
     #endregion
 
     #endregion
