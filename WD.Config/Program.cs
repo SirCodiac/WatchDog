@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32.TaskScheduler;
+﻿using ASquare.WindowsTaskScheduler;
 using System;
 using System.IO;
 using System.Linq;
@@ -140,20 +140,21 @@ namespace WD.Config
     #region [ActivateTaskScheduler]
     private static void ActivateTaskScheduler()
     {
-      using (TaskService ts = new TaskService())
+      var response = WindowTaskScheduler.Configure()
+                                        .CreateTask("WatchDog", $@"{Environment.CurrentDirectory}\WD.Executeable.exe")
+                                        .RunDaily()
+                                        .RunEveryXMinutes(60)
+                                        .RunDurationFor(new TimeSpan(8, 30, 0))
+                                        .SetStartDate(new DateTime(2020, 03, 15))
+                                        .SetStartTime(new TimeSpan(8, 0, 0))
+                                        .Execute();
+      if(!response.IsSuccess)
       {
-        TaskDefinition td = ts.NewTask();
-        td.RegistrationInfo.Author = $"{Environment.UserName} with the WatchDog of SirCodiac";
-        td.RegistrationInfo.Date = DateTime.Now;
-        td.RegistrationInfo.Source = "Application";
-        td.RegistrationInfo.Version = new Version(1, 0);
-        td.RegistrationInfo.Description = "Executes the WatchDog executable.";
-
-        td.Triggers.Add(new DailyTrigger { Enabled = true, DaysInterval = 1 });
-        td.Actions.Add(new ExecAction($"{Environment.CurrentDirectory}\\WD.Executable.exe"));
-
-        ts.RootFolder.RegisterTaskDefinition(@"WatchDog", td);
-
+        Console.WriteLine($"Error while creating task. {response.ErrorMessage}. Press any key to continue...");
+        Console.ReadKey();
+      }
+      else
+      {
         Properties.Settings.Default.TaskActivated = true;
         Properties.Settings.Default.Save();
       }
@@ -163,20 +164,11 @@ namespace WD.Config
     #region [DeactivateTaskScheduler]
     private static void DeactivateTaskScheduler()
     {
-      try
-      {
-        using (TaskService ts = new TaskService())
-        {
-          ts.RootFolder.DeleteTask(@"WatchDog");
-        }
-      }
-      catch (Exception)
-      {
-
-      }
+      WindowTaskScheduler.Configure().DeleteTask("WatchDog");
       Properties.Settings.Default.TaskActivated = false;
       Properties.Settings.Default.Save();
     }
+   
     #endregion
   }
 }
