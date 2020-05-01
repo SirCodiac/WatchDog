@@ -115,12 +115,6 @@
     <None Include="WD.Config_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WD.Core\WD.Core.csproj">
-      <Project>{B6AB4EBF-190E-4B6C-AD4D-BDFE72568EAF}</Project>
-      <Name>WD.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
